@@ -155,5 +155,5 @@ MiniDeps.now(function()
   -- Install only those that you need
   add('aktersnurra/no-clown-fiesta.nvim')
   -- Enable only one
-  vim.cmd('color no-clown-fiesta-dark')
+  --vim.cmd('color no-clown-fiesta-dark')
 end)
