@@ -95,9 +95,44 @@ now_if_args(function()
   -- the rules provided by 'nvim-lspconfig'.
   -- Use `:h vim.lsp.config()` or 'after/lsp/' directory to configure servers.
   -- Uncomment and tweak the following `vim.lsp.enable()` call to enable servers.
-  -- vim.lsp.enable({
-  --   -- For example, if `lua-language-server` is installed, use `'lua_ls'` entry
-  -- })
+  vim.lsp.enable({
+    'lua_ls',
+    'rust_analyzer',
+    'biome',
+    'pyright',
+    'clangd',
+  })
+
+  vim.lsp.config(
+      'rust-analyzer',
+      {
+        settings = {
+    ['rust-analyzer'] = {
+      check = {
+        command = "clippy", -- use Clippy for on-save checking
+      },
+      cargo = {
+        allFeatures = true,
+      },
+      diagnostics = {
+        enable = true,
+      },
+      inlayHints = {
+        enable = true,
+        lifetimeElisionHints = {
+          enable = true,
+          useParameterNames = true,
+        },
+        parameterHints = {
+          enable = true,
+        },
+        typeHints = {
+          enable = true,
+        },
+      },
+    },
+        },
+  })
 end)
 
 -- Formatting =================================================================
