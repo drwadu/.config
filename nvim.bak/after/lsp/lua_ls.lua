@@ -1,7 +1,3 @@
--- ┌────────────────────┐
--- │ LSP config example │
--- └────────────────────┘
---
 -- This file contains configuration of 'lua_ls' language server.
 -- Source: https://github.com/LuaLS/lua-language-server
 --

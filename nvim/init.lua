@@ -1,87 +1,142 @@
--- ┌────────────────────┐
--- │ Welcome to MiniMax │
--- └────────────────────┘
---
--- This is a config designed to mostly use MINI. It provides out of the box
--- a stable, polished, and feature rich Neovim experience. Its structure:
---
--- ├ init.lua          Initial (this) file executed during startup
--- ├ plugin/           Files automatically sourced during startup
--- ├── 10_options.lua  Built-in Neovim behavior
--- ├── 20_keymaps.lua  Custom mappings
--- ├── 30_mini.lua     MINI configuration
--- ├── 40_plugins.lua  Plugins outside of MINI
--- ├ snippets/         User defined snippets (has demo file)
--- ├ after/            Files to override behavior added by plugins
--- ├── ftplugin/       Files for filetype behavior (has demo file)
--- ├── lsp/            Language server configurations (has demo file)
--- ├── snippets/       Higher priority snippet files (has demo file)
---
--- Config files are meant to be read, preferably inside a Neovim instance running
--- this config and opened at its root. This will help you better understand your
--- setup. Start with this file. Any order is possible, prefer the one listed above.
--- Ways of navigating your config:
--- - `<Space>` + `e` + (one of) `iokmp` - edit 'init.lua' or 'plugin/' files.
--- - Inside config directory: `<Space>ff` (picker) or `<Space>ed` (explorer)
--- - Navigate existing buffers with `[b`, `]b`, or `<Space>fb`.
---
--- Config files are also meant to be customized. Initially it is a baseline of
--- a working config based on MINI. Modify it to make it yours. Some approaches:
--- - Modify already existing files in a way that keeps them consistent.
--- - Add new files in a way that keeps config consistent.
---   Usually inside 'plugin/' or 'after/'.
---
--- Documentation comments like this can be found throughout the config.
--- Common conventions:
---
--- - See `:h key-notation` for key notation used.
--- - `:h xxx` means "documentation of helptag xxx". Either type text directly
---   followed by Enter or type `<Space>fh` to open a helptag fuzzy picker.
--- - "Type `<Space>fh`" means "press <Space>, followed by f, followed by h".
---   Unless said otherwise, it assumes that Normal mode is current.
--- - "See 'path/to/file'" means see open file at described path and read it.
--- - `:SomeCommand ...` or `:lua ...` means execute mentioned command.
+vim.opt.number         = true
+vim.opt.relativenumber = true
+vim.opt.cursorline     = true
+vim.opt.tabstop        = 2
+vim.opt.shiftwidth     = 2
+vim.opt.signcolumn     = "yes"
+vim.opt.winborder      = "rounded"
+vim.opt.wrap           = false
+vim.opt.termguicolors  = true
+vim.opt.undofile       = true
+vim.opt.incsearch      = true
 
--- Bootstrap 'mini.nvim' manually in a way that it gets managed by 'mini.deps'
-local mini_path = vim.fn.stdpath('data') .. '/site/pack/deps/start/mini.nvim'
-if not vim.loop.fs_stat(mini_path) then
-  vim.cmd('echo "Installing `mini.nvim`" | redraw')
-  local origin = 'https://github.com/nvim-mini/mini.nvim'
-  local clone_cmd = { 'git', 'clone', '--filter=blob:none', origin, mini_path }
-  vim.fn.system(clone_cmd)
-  vim.cmd('packadd mini.nvim | helptags ALL')
-  vim.cmd('echo "Installed `mini.nvim`" | redraw')
+vim.cmd([[set mouse=]])
+vim.cmd([[set noswapfile]])
+vim.cmd([[set clipboard+=unnamedplus]])
+
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+local map = vim.keymap.set
+
+map('n', '<leader>r', ':update<CR>:source<CR>')
+map('n', '<leader>v', ':e $MYVIMRC<CR>')
+map('n', '<leader>w', ':write<CR>')
+map('n', '<leader>q', ':quit<CR>')
+map('n', '<leader>m', ':make<CR>')
+
+map('n', '<leader>x', ':Vex<CR>')
+map('n', '<leader>e', ':Ex<CR>')
+map('n', '<leader>s', '<Cmd>e #<CR>')
+map('n', '<leader>S', '<Cmd>bot sf #<CR>')
+
+map('n', '<leader>de', vim.diagnostic.open_float)
+map('n', ']g', vim.diagnostic.goto_next)
+map('n', '[g', vim.diagnostic.goto_prev)
+map('n', 'gd', vim.lsp.buf.definition, { silent = true })
+
+map({ 'n', 'v' }, '<leader>n', ':norm ')
+
+--vim.pack.add({ "https://github.com/aktersnurra/no-clown-fiesta.nvim" })
+--require("no-clown-fiesta").setup({ transparent = false })
+--vim.cmd("colorscheme no-clown-fiesta")
+vim.cmd("hi statusline guibg=NONE")
+
+vim.pack.add({ "https://github.com/hrsh7th/nvim-cmp" })
+vim.pack.add({ "https://github.com/hrsh7th/cmp-nvim-lsp" })
+vim.pack.add({ "https://github.com/hrsh7th/cmp-buffer" })
+vim.pack.add({ "https://github.com/hrsh7th/cmp-path" })
+
+local cmp = require("cmp")
+
+cmp.setup({
+	mapping = cmp.mapping.preset.insert({
+		["<C-Space>"] = cmp.mapping.complete(),
+		["<CR>"] = cmp.mapping.confirm({ select = true }),
+		["<Tab>"] = cmp.mapping.select_next_item(),
+		["<S-Tab>"] = cmp.mapping.select_prev_item(),
+	}),
+	sources = {
+		{ name = "nvim_lsp" },
+		{ name = "buffer" },
+		{ name = "path" },
+	},
+})
+
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+vim.pack.add({ "https://github.com/neovim/nvim-lspconfig" })
+
+vim.lsp.config("rust_analyzer", {
+	capabilities = capabilities,
+	settings = {
+		["rust-analyzer"] = {
+			check = { command = "clippy" },
+			cargo = { allFeatures = true },
+			diagnostics = { enable = true },
+			inlayHints = {
+				enable = true,
+				lifetimeElisionHints = {
+					enable = true,
+					useParameterNames = true,
+				},
+				parameterHints = { enable = true },
+				typeHints = { enable = true },
+			},
+		},
+	},
+})
+
+vim.lsp.config("lua_ls", { capabilities = capabilities })
+vim.lsp.config("pyright", { capabilities = capabilities })
+vim.lsp.config("clangd", { capabilities = capabilities })
+
+vim.lsp.enable({
+	"lua_ls",
+	"rust_analyzer",
+	"pyright",
+	"clangd",
+})
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+	callback = function(args)
+		vim.lsp.buf.format({ bufnr = args.buf })
+	end,
+})
+
+map('n', '<leader>lf', function()
+	vim.lsp.buf.format({ async = true })
+end)
+
+vim.pack.add({ "https://github.com/nvim-mini/mini.pick" })
+require("mini.pick").setup()
+local pick = require('mini.pick')
+pick.registry.grep_live_specific = function()
+	--local cache_rg_config = vim.uv.os_getenv('RIPGREP_CONFIG_PATH')
+	--vim.uv.os_setenv('RIPGREP_CONFIG_PATH', '/path/to/specific/configuration')
+	pick.builtin.grep_live({ tool = 'rg' })
+	--vim.uv.os_setenv('RIPGREP_CONFIG_PATH', cache_rg_config)
+end
+map('n', '<leader><leader>', ':Pick buffers<CR>')
+map('n', '<leader>ff', ':Pick files<CR>')
+map('n', '<leader>fg', ':Pick grep live<CR><CR>')
+--map('n', '<leader>fw', ":Pick grep live pattern=" ... "vim.fn.expand('<cword>')<CR>")
+map('n', '<leader>fh', ':Pick help<CR>')
+
+vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
+
+local ok, ts_configs = pcall(require, "nvim-treesitter.configs")
+if ok and ts_configs and ts_configs.setup then
+	ts_configs.setup({
+		highlight = { enable = true },
+	})
 end
 
--- Plugin manager. Set up immediately for `now()`/`later()` helpers.
--- Example usage:
--- - `MiniDeps.add('...')` - use inside config to add a plugin
--- - `:DepsUpdate` - update all plugins
--- - `:DepsSnapSave` - save a snapshot of currently active plugins
---
--- See also:
--- - `:h MiniDeps-overview` - how to use it
--- - `:h MiniDeps-commands` - all available commands
--- - 'plugin/30_mini.lua' - more details about 'mini.nvim' in general
-require('mini.deps').setup()
+-- optional: install parsers manually (safe for old Treesitter)
+--pcall(vim.cmd, "TSInstall lua rust python c haskell")
 
--- Define config table to be able to pass data between scripts
-_G.Config = {}
+vim.pack.add({ "https://github.com/mason-org/mason.nvim" })
+require("mason").setup()
 
--- Define custom autocommand group and helper to create an autocommand.
--- Autocommands are Neovim's way to define actions that are executed on events
--- (like creating a buffer, setting an option, etc.).
---
--- See also:
--- - `:h autocommand`
--- - `:h nvim_create_augroup()`
--- - `:h nvim_create_autocmd()`
-local gr = vim.api.nvim_create_augroup('custom-config', {})
-_G.Config.new_autocmd = function(event, pattern, callback, desc)
-  local opts = { group = gr, pattern = pattern, callback = callback, desc = desc }
-  vim.api.nvim_create_autocmd(event, opts)
-end
-
--- Some plugins and 'mini.nvim' modules only need setup during startup if Neovim
--- is started like `nvim -- path/to/file`, otherwise delaying setup is fine
-_G.Config.now_if_args = vim.fn.argc(-1) > 0 and MiniDeps.now or MiniDeps.later
+vim.pack.add({ "https://github.com/nvim-mini/mini.pairs" })
+require("mini.pairs").setup()
