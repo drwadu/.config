@@ -1,8 +1,9 @@
 vim.opt.number         = true
 vim.opt.relativenumber = true
 vim.opt.cursorline     = true
-vim.opt.tabstop        = 2
-vim.opt.shiftwidth     = 2
+vim.opt.tabstop        = 4
+vim.opt.expandtab      = true
+vim.opt.shiftwidth     = 4
 vim.opt.signcolumn     = "yes"
 vim.opt.winborder      = "rounded"
 vim.opt.wrap           = false
@@ -36,9 +37,6 @@ map('n', 'gd', vim.lsp.buf.definition, { silent = true })
 
 map({ 'n', 'v' }, '<leader>n', ':norm ')
 
---vim.pack.add({ "https://github.com/aktersnurra/no-clown-fiesta.nvim" })
---require("no-clown-fiesta").setup({ transparent = false })
---vim.cmd("colorscheme no-clown-fiesta")
 vim.cmd("colorscheme salz")
 
 vim.pack.add({ "https://github.com/hrsh7th/nvim-cmp" })
@@ -49,17 +47,17 @@ vim.pack.add({ "https://github.com/hrsh7th/cmp-path" })
 local cmp = require("cmp")
 
 cmp.setup({
-	mapping = cmp.mapping.preset.insert({
-		["<C-Space>"] = cmp.mapping.complete(),
-		["<CR>"] = cmp.mapping.confirm({ select = true }),
-		["<Tab>"] = cmp.mapping.select_next_item(),
-		["<S-Tab>"] = cmp.mapping.select_prev_item(),
-	}),
-	sources = {
-		{ name = "nvim_lsp" },
-		{ name = "buffer" },
-		{ name = "path" },
-	},
+    mapping = cmp.mapping.preset.insert({
+        ["<C-Space>"] = cmp.mapping.complete(),
+        ["<CR>"] = cmp.mapping.confirm({ select = true }),
+        ["<Tab>"] = cmp.mapping.select_next_item(),
+        ["<S-Tab>"] = cmp.mapping.select_prev_item(),
+    }),
+    sources = {
+        { name = "nvim_lsp" },
+        { name = "buffer" },
+        { name = "path" },
+    },
 })
 
 local capabilities = require("cmp_nvim_lsp").default_capabilities()
@@ -67,54 +65,81 @@ local capabilities = require("cmp_nvim_lsp").default_capabilities()
 vim.pack.add({ "https://github.com/neovim/nvim-lspconfig" })
 
 vim.lsp.config("rust_analyzer", {
-	capabilities = capabilities,
-	settings = {
-		["rust-analyzer"] = {
-			check = { command = "clippy" },
-			cargo = { allFeatures = true },
-			diagnostics = { enable = true },
-			inlayHints = {
-				enable = true,
-				lifetimeElisionHints = {
-					enable = true,
-					useParameterNames = true,
-				},
-				parameterHints = { enable = true },
-				typeHints = { enable = true },
-			},
-		},
-	},
+    capabilities = capabilities,
+    settings = {
+        ["rust-analyzer"] = {
+            check = { command = "clippy" },
+            cargo = { allFeatures = true },
+            diagnostics = { enable = true },
+            inlayHints = {
+                enable = true,
+                lifetimeElisionHints = {
+                    enable = true,
+                    useParameterNames = true,
+                },
+                parameterHints = { enable = true },
+                typeHints = { enable = true },
+            },
+        },
+    },
 })
 
 vim.lsp.config("lua_ls", { capabilities = capabilities })
 vim.lsp.config("pyright", { capabilities = capabilities })
 vim.lsp.config("clangd", { capabilities = capabilities })
+vim.lsp.config("hls", {
+    capabilities = capabilities,
+    settings = {
+        haskell = {
+            formattingProvider = "fourmolu",
+            plugin = {
+                stan = { globalOn = false },
+                hlint = { globalOn = true },
+            },
+        },
+    },
+})
+vim.lsp.config("ts_ls", {
+    capabilities = capabilities,
+    settings = {
+        javascript = {
+            format = { enable = true },
+        },
+        typescript = {
+            format = { enable = true },
+        },
+    },
+})
+
+
 
 vim.lsp.enable({
-	"lua_ls",
-	"rust_analyzer",
-	"pyright",
-	"clangd",
+    "lua_ls",
+    "rust_analyzer",
+    "pyright",
+    "clangd",
+    "hls",
+    "ts_ls",
 })
 
 vim.api.nvim_create_autocmd("BufWritePre", {
-	callback = function(args)
-		vim.lsp.buf.format({ bufnr = args.buf })
-	end,
+    callback = function(args)
+        vim.lsp.buf.format({ bufnr = args.buf })
+    end,
 })
 
 map('n', '<leader>lf', function()
-	vim.lsp.buf.format({ async = true })
+    vim.lsp.buf.format({ async = true })
 end)
 
 vim.pack.add({ "https://github.com/nvim-mini/mini.pick" })
 require("mini.pick").setup()
 local pick = require('mini.pick')
 pick.registry.grep_live_specific = function()
-	--local cache_rg_config = vim.uv.os_getenv('RIPGREP_CONFIG_PATH')
-	--vim.uv.os_setenv('RIPGREP_CONFIG_PATH', '/path/to/specific/configuration')
-	pick.builtin.grep_live({ tool = 'rg' })
-	--vim.uv.os_setenv('RIPGREP_CONFIG_PATH', cache_rg_config)
+    --local cache_rg_config = vim.uv.os_getenv('RIPGREP_CONFIG_PATH')
+    --vim.uv.os_setenv('RIPGREP_CONFIG_PATH', '/path/to/specific/configuration')
+    pick.builtin.grep_live({ tool = 'rg' })
+    --vim.uv.os_setenv('RIPGREP_CONFIG_PATH', cache_rg_config)
 end
 map('n', '<leader><leader>', ':Pick buffers<CR>')
 map('n', '<leader>ff', ':Pick files<CR>')
@@ -126,9 +151,9 @@ vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
 
 local ok, ts_configs = pcall(require, "nvim-treesitter.configs")
 if ok and ts_configs and ts_configs.setup then
-	ts_configs.setup({
-		highlight = { enable = true },
-	})
+    ts_configs.setup({
+        highlight = { enable = true },
+    })
 end
 
 -- optional: install parsers manually (safe for old Treesitter)
@@ -136,6 +161,22 @@ end
 
 vim.pack.add({ "https://github.com/mason-org/mason.nvim" })
 require("mason").setup()
+vim.pack.add({ "https://github.com/mason-org/mason-lspconfig.nvim" })
+require("mason-lspconfig").setup({
+    ensure_installed = {
+        "lua_ls",
+        "rust_analyzer",
+        "pyright",
+        "clangd",
+        --"hls",
+        "ts_ls",
+    },
+})
+
 
 vim.pack.add({ "https://github.com/nvim-mini/mini.pairs" })
 require("mini.pairs").setup()
+
+vim.pack.add({ "https://github.com/sindrets/diffview.nvim" })
+require("diffview").setup()
+map('n', '<leader>G', ':vsplit<CR>:terminal tig<CR>')
