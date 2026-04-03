@@ -18,5 +18,7 @@ hi Todo guifg='#bfc9c9' cterm=None gui=None
 hi Constructor guifg=NvimLightBlue
 hi Function guifg=NvimLightBlue
 hi StatusLine guibg=None
+hi LineNr guifg=#050505
+hi CursorLineNr guibg=bg guifg=#82aaff
 
 " vim: sw=2
