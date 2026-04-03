@@ -1,4 +1,4 @@
-vim.opt.number         = true
+vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.cursorline     = true
 vim.opt.tabstop        = 4
@@ -37,6 +37,8 @@ map('n', 'gd', vim.lsp.buf.definition, { silent = true })
 
 map({ 'n', 'v' }, '<leader>n', ':norm ')
 
+vim.pack.add({ "https://github.com/Verf/deepwhite.nvim" })
+vim.pack.add({ "https://github.com/nyoom-engineering/oxocarbon.nvim" })
 vim.cmd("colorscheme salz")
 
 vim.pack.add({ "https://github.com/hrsh7th/nvim-cmp" })
@@ -122,11 +124,11 @@ vim.lsp.enable({
     "ts_ls",
 })
 
-vim.api.nvim_create_autocmd("BufWritePre", {
-    callback = function(args)
-        vim.lsp.buf.format({ bufnr = args.buf })
-    end,
-})
+-- vim.api.nvim_create_autocmd("BufWritePre", {
+--     callback = function(args)
+--         vim.lsp.buf.format({ bufnr = args.buf })
+--     end,
+-- })
 
 map('n', '<leader>lf', function()
     vim.lsp.buf.format({ async = true })
@@ -156,6 +158,7 @@ if ok and ts_configs and ts_configs.setup then
     })
 end
 
+
 -- optional: install parsers manually (safe for old Treesitter)
 --pcall(vim.cmd, "TSInstall lua rust python c haskell")
 
@@ -179,4 +182,56 @@ require("mini.pairs").setup()
 
 vim.pack.add({ "https://github.com/sindrets/diffview.nvim" })
 require("diffview").setup()
-map('n', '<leader>G', ':vsplit<CR>:terminal tig<CR>')
+vim.pack.add({ "https://github.com/rhysd/git-messenger.vim" })
+
+map('n', '<leader>gt', ':vsplit<CR>:terminal tig<CR>')
+map('n', '<leader>gf', ':DiffviewOpen<CR>')
+map('n', '<leader>gm', ':GitMessenger<CR>')
+map('n', '<leader>gc', function()
+    vim.cmd('split | terminal')
+
+    local term_buf = vim.api.nvim_get_current_buf()
+    local term_chan = vim.bo[term_buf].channel
+
+    vim.fn.chansend(term_chan, 'git diff\n')
+
+    -- Wait a moment for git status to display
+    vim.defer_fn(function()
+        vim.fn.chansend(term_chan, 'git add -p\n')
+
+        -- Wait a moment, then prompt for commit message
+        vim.defer_fn(function()
+            -- vim.fn.chansend(term_chan, 'git commit -m "')
+            -- Enter insert mode in the terminal so you can type
+            vim.cmd('startinsert')
+        end, 500)
+    end, 500)
+end)
+
+vim.pack.add({ "https://github.com/vimwiki/vimwiki" })
+vim.g.vimwiki_list = {
+    {
+        path = "~/wiki/",
+        syntax = "markdown",
+        ext = ".md",
+    }
+}
+-- Prevent vimwiki from hijacking [[links]] in non-wiki files
+vim.g.vimwiki_global_ext = 0
+map('n', '<leader>ki', ':VimwikiIndex<CR>')
+map('n', '<leader>kf', ':Pick files cwd="~/wiki"<CR>')
+map('n', '<leader>kg', ':Pick grep_live cwd="~/wiki"<CR>')
+
+vim.pack.add({ "https://github.com/hat0uma/csvview.nvim" })
+
+local my_theme = 'salz'
+local function toggle_theme()
+  if my_theme == 'salz' then
+    vim.cmd('colorscheme deepwhite')
+    my_theme = 'meersalz'
+  else
+    vim.cmd('colorscheme salz')
+    my_theme = 'salz'
+  end
+end
+vim.keymap.set('n', '<leader>t', toggle_theme, { desc = 'Toggle theme' })
