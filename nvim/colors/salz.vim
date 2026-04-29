@@ -19,6 +19,6 @@ hi Constructor guifg=NvimLightBlue
 hi Function guifg=NvimLightBlue
 hi StatusLine guibg=None
 hi LineNr guifg=#050505
-hi CursorLineNr guibg=bg guifg=#82aaff
+hi CursorLineNr guibg=bg guifg=#fc0303
 
 " vim: sw=2
