@@ -1,5 +1,5 @@
-" Maintainer:	drwadu <alamzan94@live.de>
-" Last Change:	2025 Dec 22
+" Maintainer:	drwadu <spirida@mailbox.org>
+" Last Change:	2026 May
 
 hi clear Normal
 set bg&
@@ -18,7 +18,9 @@ hi Todo guifg='#bfc9c9' cterm=None gui=None
 hi Constructor guifg=NvimLightBlue
 hi Function guifg=NvimLightBlue
 hi StatusLine guibg=None
-hi LineNr guifg=#050505
-hi CursorLineNr guibg=bg guifg=#fc0303
+hi LineNr guibg=#000000 guifg=#faf0f7
+hi CursorLineNr guibg=#000000 guifg=#fc0303
+hi Normal guibg=#000000 ctermbg=0
+hi NonText guibg=#000000 ctermbg=0
 
 " vim: sw=2
